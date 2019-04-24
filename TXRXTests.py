@@ -9,19 +9,34 @@ class TestGateway(unittest.TestCase):
     def testValidatePacket(self):
         self.assertEqual(self.txrx.isValidPacket('asdf'), False)
         self.assertEqual(
-            self.txrx.isValidPacket('S12	3	4	E')
-            , True)
-        self.assertEqual(
-            self.txrx.isValidPacket('S13	3	4	E')
+            self.txrx.isValidPacket('~||	|	|	^')
             , False)
         self.assertEqual(
-            self.txrx.isValidPacket('S12	34  E')
+            self.txrx.isValidPacket('~|C	|	|	^')
             , False)
         self.assertEqual(
-            self.txrx.isValidPacket('Sa1b2c3d4eE')
-            , True)
+            self.txrx.isValidPacket('~||	||  ^')
+            , False)
+        self.assertEqual(
+            self.txrx.isValidPacket('~a|b|c|e|f^')
+            , False)
         self.assertEqual(
             self.txrx.isValidPacket('')
+            , False)
+        self.assertEqual(
+            self.txrx.isValidPacket('~1|2|3|4|5^')
+            , True)
+        self.assertEqual(
+            self.txrx.isValidPacket('~255|255|255|255|255^')
+            , False)
+        self.assertEqual(
+            self.txrx.isValidPacket('~-1|-1|-1|-1|-1^')
+            , False)
+        self.assertEqual(
+            self.txrx.isValidPacket('~4|0|2|-1|-1^')
+            , True)
+        self.assertEqual(
+            self.txrx.isValidPacket('~4|0|2|-1|f^')
             , False)
 
     def testExtractPacketData(self):
@@ -31,28 +46,26 @@ class TestGateway(unittest.TestCase):
             self.txrx.extractPacketData(dataPacket),
             expectedData)
 
-        dataPacket = 'Sa1b2c3'
+        dataPacket = '~a|b|c|'
         expectedData = []
         self.assertEqual(
             self.txrx.extractPacketData(dataPacket),
             expectedData)
 
-        dataPacket = 'Sa1b2c3d4eE9asdf'
+        dataPacket = '~a1|2|3|4|E^asdf'
         expectedData = []
         self.assertEqual(
             self.txrx.extractPacketData(dataPacket),
             expectedData)
 
-        dataPacket = 'Sa1b2c3d4eE'
-        expectedData = [ord('a'), ord('b'),ord('c'),
-                        ord('d'), ord('e')]
+        dataPacket = '~1|2|3|4|5^'
+        expectedData = [1,2,3,4,5]
         self.assertEqual(
             self.txrx.extractPacketData(dataPacket),
             expectedData)
 
-        dataPacket = 'Sf1f2f3f4fE'
-        expectedData = [ord('f'), ord('f'),ord('f'),
-                        ord('f'), ord('f')]
+        dataPacket = '~f|f|f|f|f^'
+        expectedData = []
         self.assertEqual(
             self.txrx.extractPacketData(dataPacket),
             expectedData)
